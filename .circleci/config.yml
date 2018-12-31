@@ -1,45 +1,54 @@
 version: 2.1
 jobs:
-  analytics-framework-build:
+  analytics-build:
     machine: true
     steps:  
       - checkout
       - restore_cache:
           key: dp-dependency-cache-{{ checksum "pom.xml" }}
-      - run: cd platform-framework && mvn clean install -DskipTests=true
-      - run: cd platform-framework && mvn scoverage:report
-      - save_cache:
-          key: dp-dependency-cache-{{ checksum "pom.xml" }}
-          paths: ~/.m2
-          
-  data-products-build:
-    machine: true
-    steps:
-      - checkout
-      - restore_cache:
-          key: dp-dependency-cache-{{ checksum "pom.xml" }}
-      - run: cd platform-modules && mvn clean install -DskipTests
-      - run: cd platform-modules/job-manager && mvn clean package 
-      - save_cache:
-          key: dp-dependency-cache-{{ checksum "pom.xml" }}
-          paths: ~/.m2
-    
-  lpa-api-build:
-    machine: true
-    steps:  
-      - checkout
-      - restore_cache:
-          key: dp-dependency-cache-{{ checksum "pom.xml" }}
-      - run: cd platform-api && mvn clean install -DskipTests=true
+      - run:
+          name: analytics-framework-build
+          command: cd platform-framework && mvn clean install -DskipTests=true
+      - run:
+          name: data-products-build
+          command: cd platform-modules && mvn clean install -DskipTests
+      - run: cd platform-modules/job-manager && mvn clean package
+      - run:
+          name: lpa-api-build
+          command: cd platform-api && mvn clean install -DskipTests=true
       - run: cd platform-api && mvn play2:dist -pl analytics-api
       - save_cache:
           key: dp-dependency-cache-{{ checksum "pom.xml" }}
           paths: ~/.m2
           
+  #data-products-build:
+    #machine: true
+    #steps:
+      #- checkout
+      #- restore_cache:
+          #key: dp-dependency-cache-{{ checksum "pom.xml" }}
+      #- run: cd platform-modules && mvn clean install -DskipTests
+      #- run: cd platform-modules/job-manager && mvn clean package 
+      #- save_cache:
+          #key: dp-dependency-cache-{{ checksum "pom.xml" }}
+          #paths: ~/.m2
+    
+  #lpa-api-build:
+    #machine: true
+    #steps:  
+      #- checkout
+      #- restore_cache:
+          #key: dp-dependency-cache-{{ checksum "pom.xml" }}
+      #- run: cd platform-api && mvn clean install -DskipTests=true
+      #- run: cd platform-api && mvn play2:dist -pl analytics-api
+      #- save_cache:
+          #key: dp-dependency-cache-{{ checksum "pom.xml" }}
+          #paths: ~/.m2
+          
 workflows:
   version: 2.1
   workflow:
     jobs:
-      - analytics-framework-build
-      - data-products-build
-      - lpa-api-build
+      - analytics-build
+      #- data-products-build
+      #- lpa-api-build
