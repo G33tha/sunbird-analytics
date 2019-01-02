@@ -26,7 +26,7 @@ jobs:
       - run: cp platform-api/analytics-api/target/analytics-api-1.0-dist.zip temp/
       - store_artifacts:
           path: temp
-          #destination: logs
+          destination: temp/
           
   #data-products-build:
     #machine: true
